@@ -36,7 +36,7 @@ public class AIManager {
         String accessKey = aiConfig.getAccessKey();
         String workspaceId = aiConfig.getWorkspaceId();
         String apiAddress = aiConfig.getApiAddress();
-        Integer temperature = aiConfig.getTemperature();
+        Double temperature = aiConfig.getTemperature();
 
         StringBuilder stringBuilder = new StringBuilder();
 

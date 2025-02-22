@@ -21,5 +21,5 @@ public class AiConfig {
 
     private String apiAddress;
 
-    private Integer temperature;
+    private Double temperature;
 }
