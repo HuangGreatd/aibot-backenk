@@ -1,8 +1,11 @@
 package com.juzipi.springbootinit.websocket;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.ObjectMapper;
 import com.juzipi.springbootinit.manager.AIManager;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -10,6 +13,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -23,6 +27,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AiMessageHandler extends TextWebSocketHandler {
     @Resource
     private AIManager aiManager;
+
+    // 自定义线程池
+    @Resource
+    private ThreadPoolTaskExecutor asyncTaskExecutor;
 
     //保存所有连接的会话
     private final ConcurrentHashMap<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
@@ -38,13 +46,33 @@ public class AiMessageHandler extends TextWebSocketHandler {
 
     // 收到前端发送的消息，处理消息并返回 AI 回复
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        super.handleTextMessage(session, message);
+    protected void handleTextMessage(@NotNull WebSocketSession session, @NotNull TextMessage message) throws Exception {
         String userMessage = message.getPayload();
-        String aiResponse = aiManager.getQuestionByAi(userMessage);
-        TextMessage response = new TextMessage(aiResponse);
-        session.sendMessage(response);
-        log.info("收到用户消息: {}, 回复: {}", userMessage, aiResponse);
+        //提交到异步线程池处理
+        asyncTaskExecutor.execute(() ->{
+            try {
+                String aiResponse  = aiManager.getQuestionByAi(userMessage);
+                if (session.isOpen()) { // 检查会话是否有效
+                    synchronized (session) { // 确保线程安全
+                        session.sendMessage(new TextMessage(aiResponse));
+                    }
+                }
+            } catch (IOException e) {
+                log.error("回复消息失败", e);
+            }
+        });
+
+//        String aiResponse = aiManager.getQuestionByAi(userMessage);
+//        TextMessage response = new TextMessage(aiResponse);
+//        session.sendMessage(response);
+//        log.info("收到用户消息: {}, 回复: {}", userMessage, aiResponse);
+    }
+
+    //广播消息
+    private void broadcastMessage(String message){
+//        if (CollUtil.isNotEmpty(sessions)){
+//            new ObjectMapper()
+//        }
     }
 
     // 关闭连接
