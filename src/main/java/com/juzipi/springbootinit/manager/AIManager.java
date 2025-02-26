@@ -17,6 +17,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import static com.juzipi.springbootinit.constant.AiConstant.SYSTEM_PROMPT;
+
 /**
  * @ClassName AIManager
  * @Description: AI接口
@@ -50,6 +52,7 @@ public class AIManager {
         requestBody.put("temperature", temperature);
         // 构建 messages 数组
         JSONArray messages = new JSONArray();
+        messages.add(createMessage("assistant",SYSTEM_PROMPT));
         messages.add(createMessage("user", question));
         requestBody.put("messages", messages);
         // 发送 POST 请求

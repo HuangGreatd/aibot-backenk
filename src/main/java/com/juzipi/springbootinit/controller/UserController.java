@@ -1,11 +1,16 @@
 package com.juzipi.springbootinit.controller;
 
+import cn.binarywang.wx.miniapp.api.WxMaService;
+import cn.binarywang.wx.miniapp.api.impl.WxMaServiceImpl;
+import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
+import cn.binarywang.wx.miniapp.config.impl.WxMaDefaultConfigImpl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.juzipi.springbootinit.annotation.AuthCheck;
 import com.juzipi.springbootinit.common.BaseResponse;
 import com.juzipi.springbootinit.common.DeleteRequest;
 import com.juzipi.springbootinit.common.ErrorCode;
 import com.juzipi.springbootinit.common.ResultUtils;
+import com.juzipi.springbootinit.config.WxConfigProperties;
 import com.juzipi.springbootinit.config.WxOpenConfig;
 import com.juzipi.springbootinit.constant.UserConstant;
 import com.juzipi.springbootinit.exception.BusinessException;
@@ -32,6 +37,8 @@ import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
 import me.chanjar.weixin.mp.api.WxMpService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -121,6 +128,8 @@ public class UserController {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录失败，系统错误");
         }
     }
+
+
 
     /**
      * 用户注销

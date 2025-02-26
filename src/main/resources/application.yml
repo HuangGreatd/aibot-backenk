@@ -3,10 +3,10 @@
 # @from <a href="https://yupi.icu">编程导航知识星球</a>
 spring:
   application:
-    name: springboot-init
+    name: aibot-backend
   # 默认 dev 环境
   profiles:
-    active: dev
+    active: prod
   # 支持 swagger3
   mvc:
     pathmatch:
@@ -83,11 +83,33 @@ wx:
         host: 127.0.0.1
         port: 6379
       type: Memory
+
   # 微信开放平台
   # todo 需替换配置
   open:
-    appId: xxx
-    appSecret: xxx
+    appId: wx13b044f1a6f28508
+    appSecret: 65f20e3d20de29e7f1739624a8eceb53
+  miniapp:
+    appId: wx13b044f1a6f28508  # 小程序微信公众平台appId
+    secret: 65f20e3d20de29e7f1739624a8eceb53  # 小程序微信公众平台api秘钥
+# Sa-Token配置
+sa-token:
+  # token名称（同时也是 cookie 名称）
+  token-name: satoken
+  # token有效期（单位：秒）默认30天
+  timeout: 2592000
+  # token最低活跃频率（单位：秒）
+  active-timeout: -1
+  # 是否允许同一账号多地同时登录
+  is-concurrent: true
+  # 在多人登录同一账号时，是否共用一个 token
+  is-share: true
+  # token 风格（默认可取值：uuid、simple-uuid、random-32、random-64、random-128、tik）
+  token-style: uuid
+  # 是否输出操作日志
+  is-log: true
+
+
 # 对象存储
 # todo 需替换配置
 cos:
@@ -111,7 +133,7 @@ knife4j:
 # AI 知识库
 Ai:
   anythingllm:
-    accesskey: N9WV3GW-2K94NGB-Q8J38Y9-EVDQN6D
-    workspaceId: deepyulonghe
-    apiAddress: http://juzipi.natapp1.cc/api/v1/openai/chat/completions
+    accesskey: xxx
+    workspaceId: de_v1
+    apiAddress: xxx
     temperature: 0.7
