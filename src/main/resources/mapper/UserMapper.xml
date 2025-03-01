@@ -22,4 +22,10 @@
         userName,userAvatar,userProfile,
         userRole,createTime,updateTime,isDelete
     </sql>
+    <select id="selectByOpenId" resultType="java.lang.Long">
+        select id from user where mpOpenId = #{mpOpenId}
+    </select>
+    <select id="selectUserByOpenId" resultType="com.juzipi.springbootinit.model.entity.User">
+        select * from user where mpOpenId = #{mpOpenId}
+    </select>
 </mapper>

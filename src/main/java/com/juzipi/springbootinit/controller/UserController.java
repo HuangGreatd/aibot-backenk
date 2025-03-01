@@ -132,7 +132,8 @@ public class UserController {
 
     @GetMapping("/login/wx_mini")
     public BaseResponse<LoginUserVO> userLoginByWxMini(HttpServletRequest request, @RequestParam("code") String code) {
-        return userService.userLoginByWxMN(request, code);
+        LoginUserVO loginUserVO = userService.userLoginByWxMN(request, code);
+        return ResultUtils.success(loginUserVO);
     }
 
     /**

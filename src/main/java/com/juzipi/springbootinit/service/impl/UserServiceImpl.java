@@ -1,45 +1,68 @@
 package com.juzipi.springbootinit.service.impl;
 
 import static com.juzipi.springbootinit.constant.UserConstant.USER_LOGIN_STATE;
+import static com.juzipi.springbootinit.constant.UserConstant.WECHAT_LOGIN_URL;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.http.HttpRequest;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.gson.Gson;
+import com.juzipi.springbootinit.common.BaseResponse;
 import com.juzipi.springbootinit.common.ErrorCode;
+import com.juzipi.springbootinit.config.WxConfigProperties;
 import com.juzipi.springbootinit.constant.CommonConstant;
 import com.juzipi.springbootinit.exception.BusinessException;
 import com.juzipi.springbootinit.mapper.UserMapper;
 import com.juzipi.springbootinit.model.dto.user.UserQueryRequest;
+import com.juzipi.springbootinit.model.dto.user.UserWxMiniDto;
 import com.juzipi.springbootinit.model.entity.User;
 import com.juzipi.springbootinit.model.enums.UserRoleEnum;
 import com.juzipi.springbootinit.model.vo.LoginUserVO;
 import com.juzipi.springbootinit.model.vo.UserVO;
 import com.juzipi.springbootinit.service.UserService;
+import com.juzipi.springbootinit.utils.JwtUtil;
 import com.juzipi.springbootinit.utils.SqlUtils;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+
+import com.juzipi.springbootinit.wxmn.WxConfigOperator;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * 用户服务实现
- *
-
  */
 @Service
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
+    @Value("${server.servlet.session.cookie.max-age}")
+    private int expireTime;
+
+    @Resource
+    private WxConfigProperties wxConfigProperties;
+
     /**
      * 盐值，混淆密码
      */
-    public static final String SALT = "yupi";
+    public static final String SALT = "juzipi";
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -267,5 +290,67 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;
+    }
+
+    @Override
+    public LoginUserVO userLoginByWxMN(HttpServletRequest request, String code) {
+        //获取 openid
+        String openId = getOpenId(code);
+
+        //查询用户是否存在
+        Long userId = userMapper.selectByOpenId(openId);
+
+        //生成JWT
+        HashMap<String, Object> claims = new HashMap<>();
+        claims.put("openId", openId);
+        String token = JwtUtil.genToken(claims);
+        User user = new User();
+        if (userId == null) {
+            //如果用户不存在，则创建用户
+
+            user.setUserName("默认名称" + generateSixDigitRandomNumber());
+            user.setUserAccount("默认账号" + generateSixDigitRandomNumber());
+            String userPassword = "123456";
+            user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes()));
+            user.setMpOpenId(openId);
+            userMapper.insert(user);
+            return getLoginUserVO(user);
+        }
+
+        user = userMapper.selectUserByOpenId(openId);
+        // 记录用户的登录态
+        request.getSession().setAttribute(USER_LOGIN_STATE, user);
+        return getLoginUserVO(user);
+    }
+
+    /**
+     * 生成随机数
+     *
+     * @return
+     */
+    public static String generateSixDigitRandomNumber() {
+        // 生成 100000 到 999999 之间的随机数
+        int randomNumber = ThreadLocalRandom.current().nextInt(100000, 1000000);
+        return String.valueOf(randomNumber);
+    }
+
+    /**
+     * 通过微信登录code获取openId
+     *
+     * @param code 微信登录code
+     * @return openId
+     */
+    public String getOpenId(String code) {
+        // 添加参数
+        String appId = wxConfigProperties.getAppId();
+        String secret = wxConfigProperties.getSecret();
+        String authorization_code = "authorization_code";
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "https://api.weixin.qq.com/sns/jscode2session?appid=" + appId + "&secret=" + secret + "&js_code=" + code + "&grant_type=" + authorization_code;
+        String respJson = restTemplate.getForObject(url, String.class);
+        Gson gson = new Gson();
+        UserWxMiniDto userWxMiniDto = gson.fromJson(respJson, UserWxMiniDto.class);
+        return userWxMiniDto.getOpenid();
+
     }
 }

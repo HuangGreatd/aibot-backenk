@@ -125,5 +125,5 @@ public interface UserService extends IService<User> {
      * @param code
      * @return
      */
-    BaseResponse<LoginUserVO> userLoginByWxMN(HttpServletRequest request, String code);
+    LoginUserVO userLoginByWxMN(HttpServletRequest request, String code);
 }
