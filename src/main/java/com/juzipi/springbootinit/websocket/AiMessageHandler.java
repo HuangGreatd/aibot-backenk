@@ -16,6 +16,8 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.juzipi.springbootinit.constant.WebSocketConstant.HEART_REQUEST_MESSAGE;
+
 /**
  * @ClassName AiMessageHandler
  * @Description: 消息回复  websocket 处理器
@@ -48,6 +50,8 @@ public class AiMessageHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(@NotNull WebSocketSession session, @NotNull TextMessage message) throws Exception {
         String userMessage = message.getPayload();
+        //心跳检测
+
         //提交到异步线程池处理
         asyncTaskExecutor.execute(() ->{
             try {

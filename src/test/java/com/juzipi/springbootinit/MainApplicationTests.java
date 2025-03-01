@@ -160,7 +160,7 @@ class MainApplicationTests {
         String APPID = "wx13b044f1a6f28508";
         String SECRET = "65f20e3d20de29e7f1739624a8eceb53";
 
-        String tempCode = "0d3lqD000Fq4NT1n5u200ErvrH3lqD0x";
+        String tempCode = "0b3MPQ0w3Rjlt43HXH0w3glMN72MPQ0w";
 
         String authorization_code = "authorization_code";
         RestTemplate restTemplate = new RestTemplate();

@@ -2,6 +2,7 @@ package com.juzipi.springbootinit.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.juzipi.springbootinit.common.BaseResponse;
 import com.juzipi.springbootinit.model.dto.user.UserQueryRequest;
 import com.juzipi.springbootinit.model.entity.User;
 import com.juzipi.springbootinit.model.vo.LoginUserVO;
@@ -117,4 +118,12 @@ public interface UserService extends IService<User> {
      */
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
+
+    /**
+     * 登录
+     * @param request
+     * @param code
+     * @return
+     */
+    BaseResponse<LoginUserVO> userLoginByWxMN(HttpServletRequest request, String code);
 }

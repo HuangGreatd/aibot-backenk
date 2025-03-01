@@ -130,6 +130,10 @@ public class UserController {
     }
 
 
+    @GetMapping("/login/wx_mini")
+    public BaseResponse<LoginUserVO> userLoginByWxMini(HttpServletRequest request, @RequestParam("code") String code) {
+        return userService.userLoginByWxMN(request, code);
+    }
 
     /**
      * 用户注销

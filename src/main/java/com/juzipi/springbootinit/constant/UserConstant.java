@@ -2,10 +2,12 @@ package com.juzipi.springbootinit.constant;
 
 /**
  * 用户常量
- *
-
  */
 public interface UserConstant {
+    /**
+     * 微信 auth.code2Session 接口
+     */
+    final String WECHAT_LOGIN_URL = "https://api.weixin.qq.com/sns/jscode2session";
 
     /**
      * 用户登录态键
