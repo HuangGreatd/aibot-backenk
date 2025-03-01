@@ -2,6 +2,7 @@ package com.juzipi.springbootinit.websocket;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.ObjectMapper;
+import com.juzipi.springbootinit.common.ForbiddenWordsDetector;
 import com.juzipi.springbootinit.manager.AIManager;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +35,10 @@ public class AiMessageHandler extends TextWebSocketHandler {
     @Resource
     private ThreadPoolTaskExecutor asyncTaskExecutor;
 
+    @Resource
+    private ForbiddenWordsDetector forbiddenWordsDetector;
+
+
     //保存所有连接的会话
     private final ConcurrentHashMap<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
@@ -50,12 +55,24 @@ public class AiMessageHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(@NotNull WebSocketSession session, @NotNull TextMessage message) throws Exception {
         String userMessage = message.getPayload();
+        // 前置违禁词检测（使用高效的AC自动机）
+        if (forbiddenWordsDetector.containsForbiddenWords(userMessage)) {
+            String warning = "您的消息包含违禁内容，请修改后重试！";
+            if (session.isOpen()) {
+                synchronized (session) {  // 确保线程安全
+                    session.sendMessage(new TextMessage(warning));
+                }
+            }
+            log.warn("违禁词拦截: {}", userMessage);
+            return;  // 直接返回，不进入异步流程
+        }
+
         //心跳检测
 
         //提交到异步线程池处理
-        asyncTaskExecutor.execute(() ->{
+        asyncTaskExecutor.execute(() -> {
             try {
-                String aiResponse  = aiManager.getQuestionByAi(userMessage);
+                String aiResponse = aiManager.getQuestionByAi(userMessage);
                 if (session.isOpen()) { // 检查会话是否有效
                     synchronized (session) { // 确保线程安全
                         session.sendMessage(new TextMessage(aiResponse));
@@ -73,7 +90,7 @@ public class AiMessageHandler extends TextWebSocketHandler {
     }
 
     //广播消息
-    private void broadcastMessage(String message){
+    private void broadcastMessage(String message) {
 //        if (CollUtil.isNotEmpty(sessions)){
 //            new ObjectMapper()
 //        }

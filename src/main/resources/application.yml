@@ -137,3 +137,13 @@ Ai:
     workspaceId: de_v1
     apiAddress: http://juzipi.natapp1.cc/api/v1/openai/chat/completions
     temperature: 0.7
+
+
+forbidden:
+  initial-words:
+    - 暴力
+    - 色情
+    - 诈骗
+    - 赌博
+    - 毒品
+    - 习近平

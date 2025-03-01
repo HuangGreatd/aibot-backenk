@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.juzipi.springbootinit.common.ForbiddenWordsDetector;
 import com.juzipi.springbootinit.manager.AIManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,8 +20,7 @@ import javax.annotation.Resource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 主类测试
@@ -179,7 +179,13 @@ class MainApplicationTests {
         // 此处这个方法的作用就是将微信发送过来的JSON数据转换为Map，使用Hutool的类也是可以实现的。
         Map<String, Object> stringToMap = new HashMap<>();
         JSONObject jsonObject = new JSONObject();
+    }
 
+
+
+
+    @Test
+    void forBiddenWords(){
 
     }
 }
