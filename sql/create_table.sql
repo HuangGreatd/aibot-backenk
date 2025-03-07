@@ -46,3 +46,18 @@ create table if not exists questionData
     updateTime    datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
     isDelete      tinyint  default 0                 not null comment '是否删除'
 ) comment '问题' collate = utf8mb4_unicode_ci;
+
+
+CREATE TABLE
+    IF
+    NOT EXISTS chatMessage (
+                               id BIGINT auto_increment COMMENT 'id' PRIMARY KEY,
+                               fromUserId TINYINT NOT NULL COMMENT '发送者id',
+                               fromMessage VARCHAR ( 512 ) CHARACTER
+                                   SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '发送者消息',
+                               toMessage VARCHAR ( 512 ) CHARACTER
+                                   SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT 'AI回复消息',
+                               createTime DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
+                               updateTime DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                               isDelete TINYINT DEFAULT 0 NOT NULL COMMENT '是否删除'
+) COMMENT '问题' COLLATE = utf8mb4_unicode_ci;

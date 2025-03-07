@@ -52,6 +52,15 @@ public enum UserRoleEnum {
         return null;
     }
 
+    public static boolean isValidRole(String role) {
+        for (UserRoleEnum userRole : UserRoleEnum.values()) {
+            if (userRole.getValue().equals(role)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public String getValue() {
         return value;
     }

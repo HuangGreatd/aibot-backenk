@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.juzipi.springbootinit.mapper.ChatmessageMapper">
+
+    <resultMap id="BaseResultMap" type="com.juzipi.springbootinit.model.entity.Chatmessage">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="fromUserId" column="fromUserId" jdbcType="TINYINT"/>
+            <result property="fromMessage" column="fromMessage" jdbcType="VARCHAR"/>
+            <result property="toMessage" column="toMessage" jdbcType="VARCHAR"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,fromUserId,fromMessage,
+        toMessage,createTime,updateTime,
+        isDelete
+    </sql>
+</mapper>

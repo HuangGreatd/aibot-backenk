@@ -89,6 +89,7 @@ wx:
   open:
     appId: wx13b044f1a6f28508
     appSecret: 65f20e3d20de29e7f1739624a8eceb53
+  #小程序微信
   miniapp:
     appId: wx13b044f1a6f28508  # 小程序微信公众平台appId
     secret: 65f20e3d20de29e7f1739624a8eceb53  # 小程序微信公众平台api秘钥
