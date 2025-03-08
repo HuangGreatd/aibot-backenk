@@ -1,14 +1,14 @@
 package com.juzipi.springbootinit.model.dto.user;
 
-import java.io.Serializable;
-
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * 用户创建请求
  */
 @Data
-public class UserAddRequest implements Serializable {
+public class UserAdminAddRequest implements Serializable {
 
     /**
      * 用户昵称
@@ -20,12 +20,11 @@ public class UserAddRequest implements Serializable {
      */
     private String userAccount;
 
-
-
     /**
-     * 用户头像
+     * 用户密码
      */
-    private String userAvatar;
+    private String userPassword;
+
 
     /**
      * 用户角色: user, admin

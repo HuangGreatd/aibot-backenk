@@ -1,6 +1,7 @@
 package com.juzipi.springbootinit.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
@@ -10,6 +11,8 @@ import com.juzipi.springbootinit.config.WxConfigProperties;
 import com.juzipi.springbootinit.constant.CommonConstant;
 import com.juzipi.springbootinit.exception.BusinessException;
 import com.juzipi.springbootinit.mapper.UserMapper;
+import com.juzipi.springbootinit.model.dto.user.UserAdminAddRequest;
+import com.juzipi.springbootinit.model.dto.user.UserMiniLoginRequest;
 import com.juzipi.springbootinit.model.dto.user.UserQueryRequest;
 import com.juzipi.springbootinit.model.dto.user.UserWxMiniDto;
 import com.juzipi.springbootinit.model.entity.User;
@@ -289,7 +292,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public LoginUserVO userLoginByWxMN(HttpServletRequest request, String code) {
+    public LoginUserVO userLoginByWxMN(HttpServletRequest request, UserMiniLoginRequest userMiniLoginRequest) {
+        String code = userMiniLoginRequest.getCode();
         //获取 openid
         String openId = getOpenId(code);
 
@@ -303,7 +307,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = new User();
         if (userId == null) {
             //如果用户不存在，则创建用户
-
             user.setUserName("默认名称" + generateSixDigitRandomNumber());
             user.setUserAccount("默认账号" + generateSixDigitRandomNumber());
             String userPassword = "123456";
@@ -317,6 +320,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 记录用户的登录态
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
         return getLoginUserVO(user);
+    }
+
+    @Override
+    public Long addAdminUser(UserAdminAddRequest userAdminAddRequest, HttpServletRequest request) {
+        String userName = userAdminAddRequest.getUserName();
+        String userAccount = userAdminAddRequest.getUserAccount();
+        String userPassword = userAdminAddRequest.getUserPassword();
+        String userRole = userAdminAddRequest.getUserRole();
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUserAccount, userAccount);
+        User selectUser = userMapper.selectOne(queryWrapper);
+        if (selectUser != null) {
+            return 0l;
+        }
+
+        User user = new User();
+        if (StringUtils.isNotBlank(userName)) {
+            user.setUserName(userName);
+        }
+        if (StringUtils.isNotBlank(userAccount)) {
+            user.setUserAccount(userAccount);
+        }
+        if (StringUtils.isNotBlank(userPassword)) {
+            user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes()));
+        }
+        if (StringUtils.isNotBlank(userRole)) {
+            user.setUserRole(userRole);
+        }
+        int insert = userMapper.insert(user);
+        return (long) insert;
     }
 
     /**

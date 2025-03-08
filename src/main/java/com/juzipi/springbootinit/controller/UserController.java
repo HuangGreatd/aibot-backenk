@@ -15,12 +15,7 @@ import com.juzipi.springbootinit.config.WxOpenConfig;
 import com.juzipi.springbootinit.constant.UserConstant;
 import com.juzipi.springbootinit.exception.BusinessException;
 import com.juzipi.springbootinit.exception.ThrowUtils;
-import com.juzipi.springbootinit.model.dto.user.UserAddRequest;
-import com.juzipi.springbootinit.model.dto.user.UserLoginRequest;
-import com.juzipi.springbootinit.model.dto.user.UserQueryRequest;
-import com.juzipi.springbootinit.model.dto.user.UserRegisterRequest;
-import com.juzipi.springbootinit.model.dto.user.UserUpdateMyRequest;
-import com.juzipi.springbootinit.model.dto.user.UserUpdateRequest;
+import com.juzipi.springbootinit.model.dto.user.*;
 import com.juzipi.springbootinit.model.entity.User;
 import com.juzipi.springbootinit.model.vo.LoginUserVO;
 import com.juzipi.springbootinit.model.vo.UserVO;
@@ -110,9 +105,15 @@ public class UserController {
     }
 
 
-    @GetMapping("/login/wx_mini")
-    public BaseResponse<LoginUserVO> userLoginByWxMini(HttpServletRequest request, @RequestParam("code") String code) {
-        LoginUserVO loginUserVO = userService.userLoginByWxMN(request, code);
+    /**
+     * 用户登录 （微信小程序）
+     * @param request
+     * @param code
+     * @return
+     */
+    @PostMapping("/login/wx_mini")
+    public BaseResponse<LoginUserVO> userLoginByWxMini(HttpServletRequest request, UserMiniLoginRequest userMiniLoginRequest) {
+        LoginUserVO loginUserVO = userService.userLoginByWxMN(request, userMiniLoginRequest);
         return ResultUtils.success(loginUserVO);
     }
 

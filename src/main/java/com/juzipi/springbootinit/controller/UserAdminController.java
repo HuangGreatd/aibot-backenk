@@ -1,5 +1,6 @@
 package com.juzipi.springbootinit.controller;
 
+import co.elastic.clients.elasticsearch.xpack.usage.Base;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.juzipi.springbootinit.annotation.AuthCheck;
@@ -14,6 +15,8 @@ import com.juzipi.springbootinit.model.dto.forbidWord.ForbidWordAddRequest;
 import com.juzipi.springbootinit.model.dto.forbidWord.ForbidWordRemoveRequest;
 import com.juzipi.springbootinit.model.dto.forbidWord.ForbidWordSelectRequest;
 import com.juzipi.springbootinit.model.dto.forbidWord.ForbidWordUpdateRequest;
+import com.juzipi.springbootinit.model.dto.user.UserAddRequest;
+import com.juzipi.springbootinit.model.dto.user.UserAdminAddRequest;
 import com.juzipi.springbootinit.model.dto.user.UserLoginRequest;
 import com.juzipi.springbootinit.model.dto.user.UserQueryRequest;
 import com.juzipi.springbootinit.model.entity.Chatmessage;
@@ -108,7 +111,7 @@ public class UserAdminController {
 
     @PostMapping("/selectWord")
     public BaseResponse<List<Forbiddata>> updateWord(@RequestBody ForbidWordSelectRequest forbidWordSelectRequest) {
-        if (forbidWordSelectRequest == null ) {
+        if (forbidWordSelectRequest == null) {
             return ResultUtils.error(ErrorCode.PARAMS_ERROR, "请输入完整的参数");
         }
         LambdaQueryWrapper<Forbiddata> queryWrapper = new LambdaQueryWrapper<>();
@@ -158,6 +161,17 @@ public class UserAdminController {
         LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
         return ResultUtils.success(loginUserVO);
     }
+
+    @PostMapping("/add/user")
+    public BaseResponse<Long> addUser(@RequestBody UserAdminAddRequest userAdminAddRequest, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null) {
+            return ResultUtils.error(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        Long userId = userService.addAdminUser(userAdminAddRequest, request);
+        return ResultUtils.success(userId);
+    }
+
 
     @GetMapping("/upgrade/role")
     public BaseResponse<String> upgradeRole(@RequestParam String userId, @RequestParam String role, HttpServletRequest request) {
