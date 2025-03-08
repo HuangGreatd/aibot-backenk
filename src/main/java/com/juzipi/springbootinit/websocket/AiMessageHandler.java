@@ -76,6 +76,7 @@ public class AiMessageHandler extends TextWebSocketHandler {
                 if (session.isOpen()) { // 检查会话是否有效
                     synchronized (session) { // 确保线程安全
                         session.sendMessage(new TextMessage(aiResponse));
+                        log.info("收到用户消息: {}, 回复: {}", userMessage, aiResponse);
                     }
                 }
             } catch (IOException e) {
