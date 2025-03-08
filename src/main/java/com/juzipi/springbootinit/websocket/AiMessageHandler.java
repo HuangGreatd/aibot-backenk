@@ -56,16 +56,16 @@ public class AiMessageHandler extends TextWebSocketHandler {
     protected void handleTextMessage(@NotNull WebSocketSession session, @NotNull TextMessage message) throws Exception {
         String userMessage = message.getPayload();
         // 前置违禁词检测（使用高效的AC自动机）
-        if (forbiddenWordsDetector.containsForbiddenWords(userMessage)) {
-            String warning = "您的消息包含违禁内容，请修改后重试！";
-            if (session.isOpen()) {
-                synchronized (session) {  // 确保线程安全
-                    session.sendMessage(new TextMessage(warning));
-                }
-            }
-            log.warn("违禁词拦截: {}", userMessage);
-            return;  // 直接返回，不进入异步流程
-        }
+//        if (forbiddenWordsDetector.containsForbiddenWords(userMessage)) {
+//            String warning = "您的消息包含违禁内容，请修改后重试！";
+//            if (session.isOpen()) {
+//                synchronized (session) {  // 确保线程安全
+//                    session.sendMessage(new TextMessage(warning));
+//                }
+//            }
+//            log.warn("违禁词拦截: {}", userMessage);
+//            return;  // 直接返回，不进入异步流程
+//        }
 
         //心跳检测
 
