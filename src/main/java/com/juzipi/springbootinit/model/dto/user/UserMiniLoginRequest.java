@@ -17,12 +17,15 @@ public class UserMiniLoginRequest implements Serializable {
     /**
      * 用户昵称
      */
-    private String userName;
+    private String nickName;
 
     /**
      * 用户头像
      */
     private String userAvatar;
+
+
+    private String phone;
 
 
     private String code;

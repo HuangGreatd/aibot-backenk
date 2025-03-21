@@ -107,12 +107,13 @@ public class UserController {
 
     /**
      * 用户登录 （微信小程序）
+     *
      * @param request
-     * @param code
+     * @param userMiniLoginRequest
      * @return
      */
     @PostMapping("/login/wx_mini")
-    public BaseResponse<LoginUserVO> userLoginByWxMini(HttpServletRequest request, UserMiniLoginRequest userMiniLoginRequest) {
+    public BaseResponse<LoginUserVO> userLoginByWxMini(HttpServletRequest request, @RequestBody UserMiniLoginRequest userMiniLoginRequest) {
         LoginUserVO loginUserVO = userService.userLoginByWxMN(request, userMiniLoginRequest);
         return ResultUtils.success(loginUserVO);
     }
@@ -210,9 +211,6 @@ public class UserController {
     }
 
 
-
-
-
     /**
      * 分页获取用户封装列表
      *
@@ -258,4 +256,6 @@ public class UserController {
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
     }
+
+
 }

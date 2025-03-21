@@ -134,8 +134,8 @@ knife4j:
 # AI 知识库
 Ai:
   anythingllm:
-    accesskey: N9WV3GW-2K94NGB-Q8J38Y9-EVDQN6D
-    workspaceId: de_v1
+    accesskey: N0H5QSQ-JJD4SRE-HB88394-WNZ0GMC
+    workspaceId: dev1
     apiAddress: http://juzipi.natapp1.cc/api/v1/openai/chat/completions
     temperature: 0.7
 

@@ -1,6 +1,5 @@
 package com.juzipi.springbootinit.controller;
 
-import co.elastic.clients.elasticsearch.xpack.usage.Base;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.juzipi.springbootinit.annotation.AuthCheck;
@@ -15,7 +14,6 @@ import com.juzipi.springbootinit.model.dto.forbidWord.ForbidWordAddRequest;
 import com.juzipi.springbootinit.model.dto.forbidWord.ForbidWordRemoveRequest;
 import com.juzipi.springbootinit.model.dto.forbidWord.ForbidWordSelectRequest;
 import com.juzipi.springbootinit.model.dto.forbidWord.ForbidWordUpdateRequest;
-import com.juzipi.springbootinit.model.dto.user.UserAddRequest;
 import com.juzipi.springbootinit.model.dto.user.UserAdminAddRequest;
 import com.juzipi.springbootinit.model.dto.user.UserLoginRequest;
 import com.juzipi.springbootinit.model.dto.user.UserQueryRequest;
@@ -130,15 +128,7 @@ public class UserAdminController {
     //endregion
 
 
-    /**
-     * 查询所有消息记录
-     */
-    @GetMapping("/list")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<List<Chatmessage>> chatListMessage() {
-        List<Chatmessage> list = chatMessageService.list();
-        return ResultUtils.success(list);
-    }
+
 
 
     /**

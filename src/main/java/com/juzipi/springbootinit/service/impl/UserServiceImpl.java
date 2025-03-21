@@ -307,14 +307,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = new User();
         if (userId == null) {
             //如果用户不存在，则创建用户
-            user.setUserName(userMiniLoginRequest.getUserName());
+            user.setUserName(userMiniLoginRequest.getNickName());
             user.setUserAvatar(userMiniLoginRequest.getUserAvatar());
-            user.setUserAccount(userMiniLoginRequest.getUserName());
+            user.setUserAccount(userMiniLoginRequest.getNickName());
             String userPassword = "123456";
             user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes()));
             user.setMpOpenId(openId);
             userMapper.insert(user);
-            return getLoginUserVO(user);
         }
 
         user = userMapper.selectUserByOpenId(openId);

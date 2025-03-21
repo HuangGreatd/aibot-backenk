@@ -2,6 +2,9 @@ package com.juzipi.springbootinit.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.juzipi.springbootinit.model.entity.Chatmessage;
+import com.juzipi.springbootinit.model.vo.MessageVO;
+
+import java.util.List;
 
 /**
 * @author 73782
@@ -10,4 +13,5 @@ import com.juzipi.springbootinit.model.entity.Chatmessage;
 */
 public interface ChatmessageService extends IService<Chatmessage> {
 
+    List<MessageVO> selectUserChatMessage(Long id);
 }

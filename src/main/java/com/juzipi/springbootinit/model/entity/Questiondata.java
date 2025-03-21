@@ -10,11 +10,11 @@ import lombok.Data;
 
 /**
  * 问题
- * @TableName chatmessage
+ * @TableName questiondata
  */
-@TableName(value ="chatmessage")
+@TableName(value ="questiondata")
 @Data
-public class Chatmessage implements Serializable {
+public class Questiondata implements Serializable {
     /**
      * id
      */
@@ -22,19 +22,14 @@ public class Chatmessage implements Serializable {
     private Long id;
 
     /**
-     * 发送者id
+     * 问题
      */
-    private Long fromUserId;
+    private String questionTitle;
 
     /**
-     * 发送者消息
+     * 
      */
-    private String fromMessage;
-
-    /**
-     * AI回复消息
-     */
-    private String toMessage;
+    private Integer frequencyNum;
 
     /**
      * 创建时间

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.juzipi.springbootinit.mapper.QuestiondataMapper">
+
+    <resultMap id="BaseResultMap" type="com.juzipi.springbootinit.model.entity.Questiondata">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="questionTitle" column="questionTitle" jdbcType="VARCHAR"/>
+            <result property="frequencyNum" column="frequencyNum" jdbcType="TINYINT"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,questionTitle,frequencyNum,
+        createTime,updateTime,isDelete
+    </sql>
+    <select id="findRandomQuestions" resultType="com.juzipi.springbootinit.model.entity.Questiondata">
+        SELECT * from questiondata ORDER BY RAND() LIMIT 5
+    </select>
+</mapper>

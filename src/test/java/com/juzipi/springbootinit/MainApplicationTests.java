@@ -94,7 +94,7 @@ class MainApplicationTests {
     @Test
     void testAi2() {
         String aiKey = "N9WV3GW-2K94NGB-Q8J38Y9-EVDQN6D";
-        String workspace_id = "test";
+        String workspace_id = "de_v1";
         String api_address = "http://juzipi.natapp1.cc/api/v1/openai/chat/completions";
 
         // 构建请求体
@@ -119,39 +119,40 @@ class MainApplicationTests {
                 .execute();
 
         // 处理响应
-        if (response.isOk()) {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(response.bodyStream()))) {
-                String line;
-                Gson gson = new Gson();
-                while ((line = reader.readLine()) != null) {
-                    if (line.startsWith("data: ")) {
-                        String jsonStr = line.substring("data: ".length()).trim();
-                        if (!jsonStr.equals("[DONE]")) {
-                            JsonObject jsonObject = gson.fromJson(jsonStr, JsonObject.class);
-                            JsonArray choices = jsonObject.getAsJsonArray("choices");
-                            if (choices != null && !choices.isEmpty()) {
-                                JsonObject choice = choices.get(0).getAsJsonObject();
-                                JsonObject delta = choice.getAsJsonObject("delta");
-                                if (delta != null) {
-                                    JsonElement contentElement = delta.get("content");
-                                    if (contentElement != null && !contentElement.isJsonNull()) {
-                                        String content = contentElement.getAsString();
-                                        System.out.print(content);
-                                        System.out.flush();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                System.out.println(); // 换行
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.err.println("Error: " + response.getStatus());
-            System.err.println("Response: " + response.body());
-        }
+//        if (response.isOk()) {
+//            try (BufferedReader reader = new BufferedReader(new InputStreamReader(response.bodyStream()))) {
+//                String line;
+//                Gson gson = new Gson();
+//                while ((line = reader.readLine()) != null) {
+//                    if (line.startsWith("data: ")) {
+//                        String jsonStr = line.substring("data: ".length()).trim();
+//                        if (!jsonStr.equals("[DONE]")) {
+//                            JsonObject jsonObject = gson.fromJson(jsonStr, JsonObject.class);
+//                            JsonArray choices = jsonObject.getAsJsonArray("choices");
+//                            if (choices != null && !choices.isEmpty()) {
+//                                JsonObject choice = choices.get(0).getAsJsonObject();
+//                                JsonObject delta = choice.getAsJsonObject("delta");
+//                                if (delta != null) {
+//                                    JsonElement contentElement = delta.get("content");
+//                                    if (contentElement != null && !contentElement.isJsonNull()) {
+//                                        String content = contentElement.getAsString();
+//                                        System.out.print(content);
+//                                        System.out.flush();
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                System.out.println(); // 换行
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            System.err.println("Error: " + response.getStatus());
+//            System.err.println("Response: " + response.body());
+//        }
+        System.out.println("response = " + response);
     }
 
 
