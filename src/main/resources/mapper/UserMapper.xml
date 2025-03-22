@@ -10,6 +10,7 @@
         <result property="mpOpenId" column="mpOpenId" jdbcType="VARCHAR"/>
         <result property="userName" column="userName" jdbcType="VARCHAR"/>
         <result property="userAvatar" column="userAvatar" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
         <result property="userProfile" column="userProfile" jdbcType="VARCHAR"/>
         <result property="userRole" column="userRole" jdbcType="VARCHAR"/>
         <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
@@ -18,14 +19,26 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,unionId,mpOpenId,
-        userName,userAvatar,userProfile,
-        userRole,createTime,updateTime,isDelete
+        id,
+        unionId,
+        mpOpenId,
+        userName,
+        userAvatar,
+        userProfile,
+        phone
+            userRole,
+        createTime,
+        updateTime,
+        isDelete
     </sql>
     <select id="selectByOpenId" resultType="java.lang.Long">
-        select id from user where mpOpenId = #{mpOpenId}
+        select id
+        from user
+        where mpOpenId = #{mpOpenId}
     </select>
     <select id="selectUserByOpenId" resultType="com.juzipi.springbootinit.model.entity.User">
-        select * from user where mpOpenId = #{mpOpenId}
+        select *
+        from user
+        where mpOpenId = #{mpOpenId}
     </select>
 </mapper>

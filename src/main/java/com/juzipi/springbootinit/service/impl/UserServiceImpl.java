@@ -21,6 +21,7 @@ import com.juzipi.springbootinit.model.vo.LoginUserVO;
 import com.juzipi.springbootinit.model.vo.UserVO;
 import com.juzipi.springbootinit.service.UserService;
 import com.juzipi.springbootinit.utils.JwtUtil;
+import com.juzipi.springbootinit.utils.PhoneNumberDecrypter;
 import com.juzipi.springbootinit.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
@@ -295,21 +296,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public LoginUserVO userLoginByWxMN(HttpServletRequest request, UserMiniLoginRequest userMiniLoginRequest) {
         String code = userMiniLoginRequest.getCode();
         //获取 openid
-        String openId = getOpenId(code);
+        UserWxMiniDto userWxMiniDto = getOpenId(code);
+        String openId = userWxMiniDto.getOpenid();
+        String sessionKey = userWxMiniDto.getSession_key();
+        if (openId == null || sessionKey == null) {
+            return null;
+        }
+        //获取解密手机号
+        String iv = userMiniLoginRequest.getIv();
+        String encryptedData = userMiniLoginRequest.getEncryptedData();
+        String phone = PhoneNumberDecrypter.decryptPhoneNumber(sessionKey, encryptedData, iv);
 
         //查询用户是否存在
         Long userId = userMapper.selectByOpenId(openId);
-
         //生成JWT
-        HashMap<String, Object> claims = new HashMap<>();
-        claims.put("openId", openId);
-        String token = JwtUtil.genToken(claims);
+//        HashMap<String, Object> claims = new HashMap<>();
+//        claims.put("openId", openId);
+//        String token = JwtUtil.genToken(claims);
         User user = new User();
         if (userId == null) {
             //如果用户不存在，则创建用户
-            user.setUserName(userMiniLoginRequest.getNickName());
-            user.setUserAvatar(userMiniLoginRequest.getUserAvatar());
-            user.setUserAccount(userMiniLoginRequest.getNickName());
+            user.setUserAccount(phone);
+            user.setPhone(phone);
             String userPassword = "123456";
             user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes()));
             user.setMpOpenId(openId);
@@ -369,7 +377,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @param code 微信登录code
      * @return openId
      */
-    public String getOpenId(String code) {
+    public UserWxMiniDto getOpenId(String code) {
         // 添加参数
         String appId = wxConfigProperties.getAppId();
         String secret = wxConfigProperties.getSecret();
@@ -378,8 +386,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String url = "https://api.weixin.qq.com/sns/jscode2session?appid=" + appId + "&secret=" + secret + "&js_code=" + code + "&grant_type=" + authorization_code;
         String respJson = restTemplate.getForObject(url, String.class);
         Gson gson = new Gson();
-        UserWxMiniDto userWxMiniDto = gson.fromJson(respJson, UserWxMiniDto.class);
-        return userWxMiniDto.getOpenid();
+        return gson.fromJson(respJson, UserWxMiniDto.class);
 
     }
 }

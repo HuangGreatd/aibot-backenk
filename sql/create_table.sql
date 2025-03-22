@@ -27,6 +27,10 @@ CREATE TABLE `user`
   COLLATE = utf8mb4_unicode_ci COMMENT = '用户'
   ROW_FORMAT = Dynamic;
 
+
+ALTER TABLE `user`
+    ADD COLUMN `phone` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '用户电话号码';
+
 create table if not exists forbidData
 (
     id         bigint auto_increment comment 'id' primary key,

@@ -115,7 +115,11 @@ public class UserController {
     @PostMapping("/login/wx_mini")
     public BaseResponse<LoginUserVO> userLoginByWxMini(HttpServletRequest request, @RequestBody UserMiniLoginRequest userMiniLoginRequest) {
         LoginUserVO loginUserVO = userService.userLoginByWxMN(request, userMiniLoginRequest);
-        return ResultUtils.success(loginUserVO);
+        if (loginUserVO.getId() != null) {
+            return ResultUtils.success(loginUserVO);
+        }
+        return ResultUtils.error(ErrorCode.OPERATION_ERROR);
+
     }
 
     /**
