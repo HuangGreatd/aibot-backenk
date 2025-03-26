@@ -1,5 +1,6 @@
 package com.juzipi.springbootinit.controller;
 
+import cn.dev33.satoken.stp.SaTokenInfo;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.juzipi.springbootinit.annotation.AuthCheck;
 import com.juzipi.springbootinit.common.BaseResponse;
@@ -100,9 +101,9 @@ public class UserController {
      * @return
      */
     @PostMapping("/login/wx_mini")
-    public BaseResponse<String> userLoginByWxMini(@RequestBody UserMiniLoginRequest userMiniLoginRequest) {
-        String tokenValue = userService.userLoginByWxMN(userMiniLoginRequest);
-        return ResultUtils.success(tokenValue);
+    public BaseResponse<SaTokenInfo> userLoginByWxMini(@RequestBody UserMiniLoginRequest userMiniLoginRequest) {
+        SaTokenInfo saTokenInfo = userService.userLoginByWxMN(userMiniLoginRequest);
+        return ResultUtils.success(saTokenInfo);
     }
 
 

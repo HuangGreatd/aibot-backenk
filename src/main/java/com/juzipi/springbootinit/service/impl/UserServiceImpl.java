@@ -167,7 +167,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public String userLoginByWxMN(UserMiniLoginRequest userMiniLoginRequest) {
+    public SaTokenInfo userLoginByWxMN(UserMiniLoginRequest userMiniLoginRequest) {
         String code = userMiniLoginRequest.getCode();
         UserWxMiniDto userWxMiniDto = getWxDtoMessage(code);
         // 单机锁
@@ -218,7 +218,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (result == null) {
                 stringRedisTemplate.opsForValue().set(redisKey, tokenInfoStr);
             }
-            return tokenValue;
+            return tokenInfo;
         }
 
     }
@@ -387,7 +387,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public User getLoginUserNoStatus(String tokenValue) {
         String redisKey = USER_LOGIN_STATE + ":" + tokenValue;
         String tokenInfoStr = stringRedisTemplate.opsForValue().get(redisKey);
-        if (StringUtils.isEmpty(tokenValue)) {
+        if (StringUtils.isEmpty(tokenInfoStr)) {
             return null;
         }
         Gson gson = new Gson();

@@ -127,7 +127,7 @@ public interface UserService extends IService<User> {
      * @param userMiniLoginRequest
      * @return
      */
-    String userLoginByWxMN(UserMiniLoginRequest userMiniLoginRequest);
+    SaTokenInfo userLoginByWxMN(UserMiniLoginRequest userMiniLoginRequest);
 
     Long addAdminUser(UserAdminAddRequest userAdminAddRequest, HttpServletRequest request);
 
