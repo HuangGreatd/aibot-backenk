@@ -31,10 +31,10 @@
         updateTime,
         isDelete
     </sql>
-    <select id="selectByOpenId" resultType="java.lang.Long">
+    <select id="selectByPhone" resultType="com.juzipi.springbootinit.model.entity.User">
         select id
         from user
-        where mpOpenId = #{mpOpenId}
+        where phone = #{phone}
     </select>
     <select id="selectUserByOpenId" resultType="com.juzipi.springbootinit.model.entity.User">
         select *

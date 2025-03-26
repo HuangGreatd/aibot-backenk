@@ -14,4 +14,6 @@ import java.util.List;
 public interface ChatmessageService extends IService<Chatmessage> {
 
     List<MessageVO> selectUserChatMessage(Long id);
+
+    void inserChatMessage(Long userId, String fromMessage, String toMessage);
 }

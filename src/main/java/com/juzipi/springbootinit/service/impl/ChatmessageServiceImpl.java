@@ -35,6 +35,12 @@ public class ChatmessageServiceImpl extends ServiceImpl<ChatmessageMapper, Chatm
             return messageVO;
         }).collect(Collectors.toList());
     }
+
+    @Override
+    public void inserChatMessage(Long userId,String fromMessage,String toMessage){
+
+
+    }
 }
 
 

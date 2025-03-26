@@ -1,14 +1,17 @@
 package com.juzipi.springbootinit.service.impl;
 
+import cn.dev33.satoken.stp.SaTokenInfo;
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.juzipi.springbootinit.common.ErrorCode;
-import com.juzipi.springbootinit.common.ForbiddenWordsDetector;
 import com.juzipi.springbootinit.config.WxConfigProperties;
 import com.juzipi.springbootinit.constant.CommonConstant;
+import com.juzipi.springbootinit.constant.UserConstant;
 import com.juzipi.springbootinit.exception.BusinessException;
 import com.juzipi.springbootinit.mapper.UserMapper;
 import com.juzipi.springbootinit.model.dto.user.UserAdminAddRequest;
@@ -20,7 +23,6 @@ import com.juzipi.springbootinit.model.enums.UserRoleEnum;
 import com.juzipi.springbootinit.model.vo.LoginUserVO;
 import com.juzipi.springbootinit.model.vo.UserVO;
 import com.juzipi.springbootinit.service.UserService;
-import com.juzipi.springbootinit.utils.JwtUtil;
 import com.juzipi.springbootinit.utils.PhoneNumberDecrypter;
 import com.juzipi.springbootinit.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.client.RestTemplate;
@@ -36,7 +39,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -56,7 +58,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     private WxConfigProperties wxConfigProperties;
 
-
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
     /**
      * 盐值，混淆密码
      */
@@ -161,6 +164,63 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             request.getSession().setAttribute(USER_LOGIN_STATE, user);
             return getLoginUserVO(user);
         }
+    }
+
+    @Override
+    public String userLoginByWxMN(UserMiniLoginRequest userMiniLoginRequest) {
+        String code = userMiniLoginRequest.getCode();
+        UserWxMiniDto userWxMiniDto = getWxDtoMessage(code);
+        // 单机锁
+        synchronized (code.intern()) {
+            String openId = userWxMiniDto.getOpenid();
+            String sessionKey = userWxMiniDto.getSession_key();
+            if (openId == null || sessionKey == null) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "登录失败");
+            }
+
+            //获取解密手机号
+            String iv = userMiniLoginRequest.getIv();
+            String encryptedData = userMiniLoginRequest.getEncryptedData();
+            String phone = PhoneNumberDecrypter.decryptPhoneNumber(sessionKey, encryptedData, iv);
+            if (StringUtils.isBlank(phone)) {
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR);
+            }
+            //查询用户是否存在
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("mpOpenId", openId);
+            User user = this.getOne(queryWrapper);
+            // 被封号，禁止登录
+            if (user != null && UserRoleEnum.BAN.getValue().equals(user.getUserRole())) {
+                throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "该用户已被封，禁止登录");
+            }
+            //注册逻辑
+            if (user == null) {
+                //如果用户不存在，则创建用户
+                user = new User();
+                user.setUserAccount(phone);
+                user.setPhone(phone);
+                String userPassword = "123456";
+                user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes()));
+                user.setMpOpenId(openId);
+                boolean save = this.save(user);
+                if (!save) {
+                    throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录失败");
+                }
+            }
+
+            StpUtil.login(user.getId());
+            SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
+            String tokenValue = StpUtil.getTokenValue();
+            Gson gson = new Gson();
+            String tokenInfoStr = gson.toJson(tokenInfo);
+            String redisKey = USER_LOGIN_STATE + ":" + tokenValue;
+            String result = stringRedisTemplate.opsForValue().get(redisKey);
+            if (result == null) {
+                stringRedisTemplate.opsForValue().set(redisKey, tokenInfoStr);
+            }
+            return tokenValue;
+        }
+
     }
 
     /**
@@ -292,43 +352,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return queryWrapper;
     }
 
-    @Override
-    public LoginUserVO userLoginByWxMN(HttpServletRequest request, UserMiniLoginRequest userMiniLoginRequest) {
-        String code = userMiniLoginRequest.getCode();
-        //获取 openid
-        UserWxMiniDto userWxMiniDto = getOpenId(code);
-        String openId = userWxMiniDto.getOpenid();
-        String sessionKey = userWxMiniDto.getSession_key();
-        if (openId == null || sessionKey == null) {
-            return null;
-        }
-        //获取解密手机号
-        String iv = userMiniLoginRequest.getIv();
-        String encryptedData = userMiniLoginRequest.getEncryptedData();
-        String phone = PhoneNumberDecrypter.decryptPhoneNumber(sessionKey, encryptedData, iv);
-
-        //查询用户是否存在
-        Long userId = userMapper.selectByOpenId(openId);
-        //生成JWT
-//        HashMap<String, Object> claims = new HashMap<>();
-//        claims.put("openId", openId);
-//        String token = JwtUtil.genToken(claims);
-        User user = new User();
-        if (userId == null) {
-            //如果用户不存在，则创建用户
-            user.setUserAccount(phone);
-            user.setPhone(phone);
-            String userPassword = "123456";
-            user.setUserPassword(DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes()));
-            user.setMpOpenId(openId);
-            userMapper.insert(user);
-        }
-
-        user = userMapper.selectUserByOpenId(openId);
-        // 记录用户的登录态
-        request.getSession().setAttribute(USER_LOGIN_STATE, user);
-        return getLoginUserVO(user);
-    }
 
     @Override
     public Long addAdminUser(UserAdminAddRequest userAdminAddRequest, HttpServletRequest request) {
@@ -360,6 +383,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return (long) insert;
     }
 
+    @Override
+    public User getLoginUserNoStatus(String tokenValue) {
+        String redisKey = USER_LOGIN_STATE + ":" + tokenValue;
+        String tokenInfoStr = stringRedisTemplate.opsForValue().get(redisKey);
+        if (StringUtils.isEmpty(tokenValue)) {
+            return null;
+        }
+        Gson gson = new Gson();
+        SaTokenInfo saTokenInfo = gson.fromJson(tokenValue, SaTokenInfo.class);
+        Long loginId = (Long) saTokenInfo.getLoginId();
+        return this.getById(loginId);
+    }
+
     /**
      * 生成随机数
      *
@@ -377,7 +413,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @param code 微信登录code
      * @return openId
      */
-    public UserWxMiniDto getOpenId(String code) {
+    public UserWxMiniDto getWxDtoMessage(String code) {
         // 添加参数
         String appId = wxConfigProperties.getAppId();
         String secret = wxConfigProperties.getSecret();

@@ -10,7 +10,7 @@ import com.juzipi.springbootinit.model.entity.User;
  */
 public interface UserMapper extends BaseMapper<User> {
 
-    Long selectByOpenId(String openId);
+    User selectByPhone(String phone);
 
 
     User selectUserByOpenId(String openId);

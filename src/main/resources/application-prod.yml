@@ -114,6 +114,6 @@ knife4j:
 Ai:
   anythingllm:
     accesskey: N0H5QSQ-JJD4SRE-HB88394-WNZ0GMC
-    workspaceId: dev1
+    workspaceId: test
     apiAddress: http://juzipi.natapp1.cc/api/v1/openai/chat/completions
     temperature: 0.7

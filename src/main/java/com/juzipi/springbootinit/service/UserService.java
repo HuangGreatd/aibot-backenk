@@ -1,5 +1,6 @@
 package com.juzipi.springbootinit.service;
 
+import cn.dev33.satoken.stp.SaTokenInfo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.juzipi.springbootinit.common.BaseResponse;
@@ -123,11 +124,12 @@ public interface UserService extends IService<User> {
 
     /**
      * 登录
-     * @param request
      * @param userMiniLoginRequest
      * @return
      */
-    LoginUserVO userLoginByWxMN(HttpServletRequest request, UserMiniLoginRequest userMiniLoginRequest);
+    String userLoginByWxMN(UserMiniLoginRequest userMiniLoginRequest);
 
     Long addAdminUser(UserAdminAddRequest userAdminAddRequest, HttpServletRequest request);
+
+    User getLoginUserNoStatus(String tokenValue);
 }

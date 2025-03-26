@@ -129,6 +129,7 @@
             <version>1.37.0</version>
         </dependency>
 
+
         <!-- 开源weixin-java-miniapp -->
         <dependency>
             <groupId>com.github.binarywang</groupId>

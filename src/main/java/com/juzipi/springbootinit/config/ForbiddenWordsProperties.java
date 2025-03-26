@@ -8,7 +8,7 @@ import java.util.Set;
 
 /**
  * @ClassName ForbiddenWordsProperties
- * @Description:
+ * @Description: 违禁词
  * @Author: 橘子皮
  * @CreateDate: 2025/3/1 17:48
  */

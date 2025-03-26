@@ -1,16 +1,11 @@
 package com.juzipi.springbootinit.controller;
 
-import cn.binarywang.wx.miniapp.api.WxMaService;
-import cn.binarywang.wx.miniapp.api.impl.WxMaServiceImpl;
-import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
-import cn.binarywang.wx.miniapp.config.impl.WxMaDefaultConfigImpl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.juzipi.springbootinit.annotation.AuthCheck;
 import com.juzipi.springbootinit.common.BaseResponse;
 import com.juzipi.springbootinit.common.DeleteRequest;
 import com.juzipi.springbootinit.common.ErrorCode;
 import com.juzipi.springbootinit.common.ResultUtils;
-import com.juzipi.springbootinit.config.WxConfigProperties;
 import com.juzipi.springbootinit.config.WxOpenConfig;
 import com.juzipi.springbootinit.constant.UserConstant;
 import com.juzipi.springbootinit.exception.BusinessException;
@@ -20,27 +15,20 @@ import com.juzipi.springbootinit.model.entity.User;
 import com.juzipi.springbootinit.model.vo.LoginUserVO;
 import com.juzipi.springbootinit.model.vo.UserVO;
 import com.juzipi.springbootinit.service.UserService;
-
-import java.util.List;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
 import me.chanjar.weixin.mp.api.WxMpService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 import static com.juzipi.springbootinit.service.impl.UserServiceImpl.SALT;
 
@@ -108,19 +96,15 @@ public class UserController {
     /**
      * 用户登录 （微信小程序）
      *
-     * @param request
      * @param userMiniLoginRequest
      * @return
      */
     @PostMapping("/login/wx_mini")
-    public BaseResponse<LoginUserVO> userLoginByWxMini(HttpServletRequest request, @RequestBody UserMiniLoginRequest userMiniLoginRequest) {
-        LoginUserVO loginUserVO = userService.userLoginByWxMN(request, userMiniLoginRequest);
-        if (loginUserVO.getId() != null) {
-            return ResultUtils.success(loginUserVO);
-        }
-        return ResultUtils.error(ErrorCode.OPERATION_ERROR);
-
+    public BaseResponse<String> userLoginByWxMini(@RequestBody UserMiniLoginRequest userMiniLoginRequest) {
+        String tokenValue = userService.userLoginByWxMN(userMiniLoginRequest);
+        return ResultUtils.success(tokenValue);
     }
+
 
     /**
      * 用户注销
@@ -144,9 +128,18 @@ public class UserController {
      * @return
      */
     @GetMapping("/get/login")
-    public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
+    public BaseResponse<LoginUserVO> getLogin(HttpServletRequest request) {
         User user = userService.getLoginUser(request);
         return ResultUtils.success(userService.getLoginUserVO(user));
+    }
+
+    @GetMapping("/get/loginUser/{tokenValue}")
+    public BaseResponse<LoginUserVO> getLoginUser(@PathVariable String  tokenValue) {
+        User loginUser = userService.getLoginUserNoStatus(tokenValue);
+        if (loginUser == null){
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        return ResultUtils.success(userService.getLoginUserVO(loginUser));
     }
 
     // endregion
