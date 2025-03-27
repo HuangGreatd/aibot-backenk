@@ -134,8 +134,10 @@ public class UserController {
         return ResultUtils.success(userService.getLoginUserVO(user));
     }
 
-    @GetMapping("/get/loginUser/{tokenValue}")
-    public BaseResponse<LoginUserVO> getLoginUser(@PathVariable String  tokenValue) {
+    @GetMapping("/get/loginUser")
+    public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
+        String tokenValue = request.getHeader("tokenValue");
+        System.out.println("tokenValue = " + tokenValue);
         User loginUser = userService.getLoginUserNoStatus(tokenValue);
         if (loginUser == null){
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
