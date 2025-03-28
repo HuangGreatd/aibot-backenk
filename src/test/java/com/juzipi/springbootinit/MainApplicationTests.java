@@ -12,9 +12,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.juzipi.springbootinit.common.ForbiddenWordsDetector;
 import com.juzipi.springbootinit.manager.AIManager;
+import com.juzipi.springbootinit.utils.DelayQueueUtil;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.client.RestTemplate;
+import redis.clients.jedis.Jedis;
 
 import javax.annotation.Resource;
 import java.io.BufferedReader;
@@ -157,7 +160,7 @@ class MainApplicationTests {
 
 
     @Test
-    void getOpenIdByCode(){
+    void getOpenIdByCode() {
         String APPID = "wx13b044f1a6f28508";
         String SECRET = "65f20e3d20de29e7f1739624a8eceb53";
 
@@ -172,7 +175,7 @@ class MainApplicationTests {
     }
 
     @Test
-    void testLogin(){
+    void testLogin() {
         String str = "odKVS6Vp7Cvr2tydC3n-prfU2f60";
 
 
@@ -183,10 +186,28 @@ class MainApplicationTests {
     }
 
 
+    private static final String QUEUE_NAME = "messageQueue";
+
+    @Autowired
+    private DelayQueueUtil delayQueueUtil;
+
+    @Test
+    void testRedisQueue() {
+        for (int i = 0; i < 10; i++) {
+            String message = "hello" + i;
+            delayQueueUtil.addToDelayQueue(message);
+        }
+
+    }
 
 
     @Test
-    void forBiddenWords(){
+    void testRedisQueueConsumer(){
+        String s = delayQueueUtil.pollFromDelayQueue();
+        System.out.println("s = " + s);
+    }
+    @Test
+    void forBiddenWords() {
 
     }
 }

@@ -41,6 +41,12 @@ spring:
     port: 16379
     timeout: 5000
     password: 123456
+  rabbitmq:
+    host: 117.72.85.57
+    port: 5672
+    username: admin
+    password: admin
+    virtualHost: /
   task:
     execution:
       pool:
