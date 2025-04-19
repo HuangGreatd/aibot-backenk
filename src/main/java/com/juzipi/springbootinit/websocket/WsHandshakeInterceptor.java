@@ -23,17 +23,6 @@ import static com.juzipi.springbootinit.constant.UserConstant.USER_LOGIN_STATE;
 public class WsHandshakeInterceptor implements HandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
-        //获取请求头中的自定义信息
-        String tokenName = request.getHeaders().getFirst("tokenName");
-        String tokenValue = request.getHeaders().getFirst("tokenValue");
-        log.info("tokenName: {}, tokenValue: {}", tokenName, tokenValue);
-        // 将 tokenValue 存入 attributes 中
-        attributes.put("tokenValue", tokenValue);
-        if (request instanceof ServletServerHttpRequest) {
-            ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
-            attributes.put("request", servletRequest.getServletRequest());
-        }
-
         return true;
     }
 

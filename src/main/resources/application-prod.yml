@@ -1,6 +1,6 @@
 server:
   address: 0.0.0.0
-  port: 8123
+  port: 8124
   servlet:
     context-path: /api
     # cookie 30 天过期
@@ -13,7 +13,7 @@ server:
 # @from <a href="https://yupi.icu">编程导航知识星球</a>
 spring:
   application:
-    name: springboot-init
+    name: ai-mini
   # 默认 dev 环境
 
   # 支持 swagger3
@@ -42,10 +42,10 @@ spring:
     timeout: 5000
     password: 123456
   rabbitmq:
-    host: XXX
+    host: 117.72.85.57
     port: 5672
-    username: XXX
-    password: XXX
+    username: admin
+    password: admin
     virtualHost: /
   task:
     execution:
