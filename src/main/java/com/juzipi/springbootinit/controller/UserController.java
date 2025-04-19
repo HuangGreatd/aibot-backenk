@@ -122,6 +122,8 @@ public class UserController {
         return ResultUtils.success(result);
     }
 
+
+
     /**
      * 获取当前登录用户
      *
@@ -134,13 +136,16 @@ public class UserController {
         return ResultUtils.success(userService.getLoginUserVO(user));
     }
 
+
     @GetMapping("/get/loginUser")
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
         String tokenValue = request.getHeader("tokenValue");
         System.out.println("tokenValue = " + tokenValue);
         User loginUser = userService.getLoginUserNoStatus(tokenValue);
-        if (loginUser == null){
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        if (loginUser == null) {
+//            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+            log.info("暂未登录");
+            return ResultUtils.error(ErrorCode.NOT_LOGIN_ERROR);
         }
         return ResultUtils.success(userService.getLoginUserVO(loginUser));
     }

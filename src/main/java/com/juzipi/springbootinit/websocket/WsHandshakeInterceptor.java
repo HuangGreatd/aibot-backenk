@@ -26,7 +26,7 @@ public class WsHandshakeInterceptor implements HandshakeInterceptor {
         //获取请求头中的自定义信息
         String tokenName = request.getHeaders().getFirst("tokenName");
         String tokenValue = request.getHeaders().getFirst("tokenValue");
-        System.out.println("tokenValue = " + tokenValue);
+        log.info("tokenName: {}, tokenValue: {}", tokenName, tokenValue);
         // 将 tokenValue 存入 attributes 中
         attributes.put("tokenValue", tokenValue);
         if (request instanceof ServletServerHttpRequest) {

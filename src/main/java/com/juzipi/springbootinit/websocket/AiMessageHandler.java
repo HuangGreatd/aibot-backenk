@@ -57,8 +57,9 @@ public class AiMessageHandler extends TextWebSocketHandler {
     // 连接建立成功
     @Override
     public void afterConnectionEstablished(@NotNull WebSocketSession session) throws Exception {
+        String tokenValue =(String) session.getAttributes().get("tokenValue");
         String sessionId = session.getId();
-        SaTokenInfo saTokenInfo = getSaTokenInfo(session);
+        SaTokenInfo saTokenInfo = getSaTokenInfo(tokenValue);
         Long loginId = null;
         if (saTokenInfo.getLoginId()!=null){
              loginId = Long.parseLong((String) saTokenInfo.getLoginId());
@@ -70,17 +71,29 @@ public class AiMessageHandler extends TextWebSocketHandler {
         log.info("用户连接成功，用户 ID: {}", loginId);
     }
 
-    private SaTokenInfo getSaTokenInfo(@NotNull WebSocketSession session) {
-        String tokenValue = (String) session.getAttributes().get("tokenValue");
-        String RedisKey = UserConstant.USER_LOGIN_STATE + ":" + tokenValue;
+    private SaTokenInfo getSaTokenInfo(String sessionId) {
+        String RedisKey =  UserConstant.USER_LOGIN_STATE + ":" + sessionId;
         String tokenInfoStr = stringRedisTemplate.opsForValue().get(RedisKey);
         Gson gson = new Gson();
+        SaTokenInfo saTokenInfo = gson.fromJson(tokenInfoStr, SaTokenInfo.class);
         return gson.fromJson(tokenInfoStr, SaTokenInfo.class);
     }
 
     // 收到前端发送的消息，处理消息并返回 AI 回复
     @Override
     protected void handleTextMessage(@NotNull WebSocketSession session, @NotNull TextMessage message) throws Exception {
+       //1.登录态失效校验
+        String tokenValue =(String) session.getAttributes().get("tokenValue");
+        SaTokenInfo saTokenInfo = getSaTokenInfo(tokenValue);
+        if (saTokenInfo == null){
+            if (session.isOpen()) { // 检查会话是否有效
+                synchronized (session) { // 确保线程安全
+                    session.sendMessage(new TextMessage("404"));
+                    log.info("用户态过期", "发送代码404");
+                }
+            }
+            return;
+        }
         String userMessage = message.getPayload();
         String sessionId = session.getId();
         Long userId = userIdMap.get(sessionId);

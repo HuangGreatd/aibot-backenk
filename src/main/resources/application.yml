@@ -27,10 +27,10 @@ spring:
   # Redis 配置
   # todo 需替换配置，然后取消注释
   rabbitmq:
-    host: CCC
+    host: 117.72.85.57
     port: 5672
-    username: XXX
-    password: XXX
+    username: admin
+    password: admin
     virtualHost: /
   redis:
     database: 1

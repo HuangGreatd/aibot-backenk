@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -57,6 +59,7 @@ public class ChatMessageController {
         }
         Long id = loginUser.getId();
         List<MessageVO> chatmessageList = chatMessageService.selectUserChatMessage(id);
+        chatmessageList.sort(Comparator.comparing(MessageVO::getCreateTime));
         return ResultUtils.success(chatmessageList);
     }
 }

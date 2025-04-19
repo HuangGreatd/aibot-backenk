@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.juzipi.springbootinit.constant.UserConstant.USER_LOGIN_STATE;
@@ -216,7 +217,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             String redisKey = USER_LOGIN_STATE + ":" + tokenValue;
             String result = stringRedisTemplate.opsForValue().get(redisKey);
             if (result == null) {
-                stringRedisTemplate.opsForValue().set(redisKey, tokenInfoStr);
+                stringRedisTemplate.opsForValue().set(redisKey, tokenInfoStr,30, TimeUnit.HOURS);
             }
             return tokenInfo;
         }
@@ -232,18 +233,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public User getLoginUser(HttpServletRequest request) {
         // 先判断是否已登录
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
-        if (currentUser == null || currentUser.getId() == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-        }
-        // 从数据库查询（追求性能的话可以注释，直接走缓存）
-        long userId = currentUser.getId();
-        currentUser = this.getById(userId);
-        if (currentUser == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-        }
-        return currentUser;
+//        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+//        User currentUser = (User) userObj;
+//        if (currentUser == null || currentUser.getId() == null) {
+//            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+//        }
+//        // 从数据库查询（追求性能的话可以注释，直接走缓存）
+//        long userId = currentUser.getId();
+//        currentUser = this.getById(userId);
+//        if (currentUser == null) {
+//            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+//        }
+//        return currentUser;
+        String tokenValue = request.getHeader("tokenValue");
+        String tokenInfo = stringRedisTemplate.opsForValue().get(USER_LOGIN_STATE + ":" + tokenValue);
+        Gson gson = new Gson();
+        SaTokenInfo saTokenInfo = gson.fromJson(tokenInfo, SaTokenInfo.class);
+        Object loginId = saTokenInfo.getLoginId();
+        long userId = Long.parseLong((String) loginId);
+        return this.getById(userId);
     }
 
     /**
@@ -391,8 +399,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return null;
         }
         Gson gson = new Gson();
-        SaTokenInfo saTokenInfo = gson.fromJson(tokenValue, SaTokenInfo.class);
-        Long loginId = (Long) saTokenInfo.getLoginId();
+        SaTokenInfo saTokenInfo = gson.fromJson(tokenInfoStr, SaTokenInfo.class);
+        String loginIdStr =(String) saTokenInfo.getLoginId();
+        Long loginId = Long.parseLong(loginIdStr);
         return this.getById(loginId);
     }
 
